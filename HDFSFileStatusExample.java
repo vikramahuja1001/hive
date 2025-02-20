@@ -106,17 +106,12 @@ public class HDFSFileStatusExample {
 
                     LOG.info("ProxyUgi is " + proxyUserUGI.toString());
 
-
-                    FileSystem hdfs1 = FileSystem.get(uris, conf);
-                    LOG.info("hdfs1 is : {} ", hdfs1.toString());
-
                     UserGroupInformation finalUGI;
                     if (isProxyUser) {
                         finalUGI = proxyUserUGI;
                     } else {
                         finalUGI = currentUserUgi;
                     }
-
 
                     finalUGI.doAs((PrivilegedExceptionAction<Void>) () -> {
                         FileSystem hdfs = FileSystem.get(uris, conf);
@@ -155,7 +150,7 @@ public class HDFSFileStatusExample {
                         } catch (Exception e) {
                             System.out.println("Exception is : " + e.getMessage());
                         }
-
+                        hdfs.close();
                         return null;
                     });
                     System.out.println("-----------------------------------------------------");
