@@ -62,6 +62,14 @@
           <groupId>org.jboss.netty</groupId>
           <artifactId>*</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.module</groupId>
+          <artifactId>jackson-module-guice</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.inject</groupId>
+          <artifactId>guice</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -84,6 +92,14 @@
         <exclusion>
           <groupId>org.jboss.netty</groupId>
           <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.module</groupId>
+          <artifactId>jackson-module-guice</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.inject</groupId>
+          <artifactId>guice</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
