@@ -644,7 +644,7 @@ public class HCatUtil {
       Properties properties = (Properties) HCatUtil.deserialize(
           conf.get(HCatConstants.HCAT_KEY_HIVE_CONF));
 
-      storePropertiesToHiveConf(properties, hiveConf);
+      //storePropertiesToHiveConf(properties, hiveConf);
     }
 
     if (conf.get(HCatConstants.HCAT_KEY_TOKEN_SIGNATURE) != null) {
@@ -655,24 +655,23 @@ public class HCatUtil {
     return hiveConf;
   }
 
-  public static void storePropertiesToHiveConf(Properties properties, HiveConf hiveConf) {
-    properties.forEach((key, value) -> {
-      switch (value) {
-        case String s ->
-            hiveConf.set((String) key, s);
-        case Integer i ->
-            hiveConf.setInt((String) key, i);
-        case Boolean b ->
-            hiveConf.setBoolean((String) key, b);
-        case Long l ->
-            hiveConf.setLong((String) key, l);
-        case Float v ->
-            hiveConf.setFloat((String) key, v);
-        case null, default ->
-            LOG.warn("Unsupported type: key=" + key + " value=" + value);
-      }
-    });
-  }
+//  public static void storePropertiesToHiveConf(Properties properties, HiveConf hiveConf) {
+//    properties.forEach((key, value) -> {
+//      if (value instanceof String s) {
+//        hiveConf.setVar((String) key, s);
+//      } else if (value instanceof Integer i) {
+//        hiveConf.setIntVar((String) key, i);
+//      } else if (value instanceof Boolean b) {
+//        hiveConf.setBooleanVar((String) key, b);
+//      } else if (value instanceof Long l) {
+//        hiveConf.setLongVar((String) key, l);
+//      } else if (value instanceof Float f) {
+//        hiveConf.setFloatVar((String) key, f);
+//      } else {
+//        LOG.warn("Unsupported type: key=" + key + " value=" + value);
+//      }
+//    });
+//  }
 
   public static JobConf getJobConfFromContext(JobContext jobContext) {
     JobConf jobConf;
