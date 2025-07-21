@@ -27,12 +27,10 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectIn
 import org.apache.kudu.Schema;
 import org.apache.kudu.Type;
 import org.apache.kudu.client.CreateTableOptions;
-import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.PartialRow;
-import org.apache.kudu.test.cluster.MiniKuduCluster;
-
-import org.junit.After;
+import org.apache.kudu.test.KuduTestHarness;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -67,29 +65,20 @@ public class TestKuduSerDe {
   private static final Properties TBL_PROPS = new Properties();
 
   private static final long NOW_MS = System.currentTimeMillis();
-  private MiniKuduCluster cluster;
-  private KuduClient client;
+
+  @Rule
+  public KuduTestHarness harness = new KuduTestHarness();
 
   @Before
   public void setUp() throws Exception {
-    cluster = new MiniKuduCluster.MiniKuduClusterBuilder().numMasterServers(3).numTabletServers(3).build();
-    client = new KuduClient.KuduClientBuilder(cluster.getMasterAddressesAsString()).build();
     // Set the base configuration values.
-    BASE_CONF.set(KUDU_MASTER_ADDRS_KEY, cluster.getMasterAddressesAsString());
+    BASE_CONF.set(KUDU_MASTER_ADDRS_KEY, harness.getMasterAddressesAsString());
     TBL_PROPS.setProperty(KUDU_TABLE_NAME_KEY, TABLE_NAME);
 
     // Create the test Kudu table.
     CreateTableOptions options = new CreateTableOptions()
         .setRangePartitionColumns(ImmutableList.of("key"));
-    client.createTable(TABLE_NAME, SCHEMA, options);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    if (client != null)
-      client.close();
-    if (cluster != null)
-      cluster.shutdown();
+    harness.getClient().createTable(TABLE_NAME, SCHEMA, options);
   }
 
   @Test

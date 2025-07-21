@@ -86,7 +86,6 @@ Java
 | ------------- |:-------------:|
 | Hive 4.0.1      | Java 8        |
 | Hive 4.1.x      | Java 17        |
-| Hive 4.2.x      | Java 21        |
 
 
 Hadoop

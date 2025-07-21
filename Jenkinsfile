@@ -93,7 +93,7 @@ set -x
 export USER="`whoami`"
 export MAVEN_OPTS="-Xmx4G"
 export -n HIVE_CONF_DIR
-sw java 21 && . /etc/profile.d/java.sh
+sw java 17 && . /etc/profile.d/java.sh
 mkdir -p .m2/repository
 cp $SETTINGS .m2/settings.xml
 OPTS=" -s $PWD/.m2/settings.xml -B -Dtest.groups= "
@@ -123,8 +123,9 @@ def sonarAnalysis(args) {
       // Sonar scanner runs in a separate JVM so JAVA_OPTS (notably heap size)
       // must be passed via the appropriate environment variable
       sh """#!/bin/bash -e
-      sw java 21 && . /etc/profile.d/java.sh
       export SONAR_SCANNER_JAVA_OPTS=-Xmx8g
+      sw java 17 && . /etc/profile.d/java.sh
+      export MAVEN_OPTS=-Xmx5G
       """+mvnCmd
   }
 }
@@ -132,7 +133,7 @@ def sonarAnalysis(args) {
 def hdbPodTemplate(closure) {
   podTemplate(
   containers: [
-    containerTemplate(name: 'hdb', image: 'ayushtkn/hive-dev-box:executor', ttyEnabled: true, command: 'tini -- cat',
+    containerTemplate(name: 'hdb', image: 'wecharyu/hive-dev-box:executor', ttyEnabled: true, command: 'tini -- cat',
         alwaysPullImage: true,
         resourceRequestCpu: '1800m',
         resourceLimitCpu: '8000m',
@@ -309,7 +310,7 @@ fi
         stage('init-metastore') {
            withEnv(["dbType=$dbType"]) {
              sh '''#!/bin/bash -e
-             sw java 21 && . /etc/profile.d/java.sh
+             sw java 17 && . /etc/profile.d/java.sh
 set -x
 echo 127.0.0.1 dev_$dbType | sudo tee -a /etc/hosts
 . /etc/profile.d/confs.sh
@@ -425,7 +426,7 @@ tar -xzf packaging/target/apache-hive-*-nightly-*-src.tar.gz
       }
       stage('Generate javadoc') {
           sh """#!/bin/bash -e
-          sw java 21 && . /etc/profile.d/java.sh
+          sw java 17 && . /etc/profile.d/java.sh
 mvn install javadoc:javadoc javadoc:aggregate -DskipTests -pl '!itests/hive-jmh,!itests/util'
 """
       }

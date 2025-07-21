@@ -71,7 +71,7 @@ RUN tar -xzv \
       -f /opt/hive-standalone-metastore-$HIVE_VERSION-bin.tar.gz \
       -C /opt/
 
-FROM eclipse-temurin:21.0.3_9-jre-ubi9-minimal AS run
+FROM eclipse-temurin:17.0.12_7-jre-ubi9-minimal AS run
 
 ARG UID=1000
 ARG HADOOP_VERSION
