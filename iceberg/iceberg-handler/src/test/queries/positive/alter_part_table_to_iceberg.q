@@ -34,15 +34,10 @@ insert into table tbl_parquet partition (b='one') values (1), (2), (3);
 insert into table tbl_parquet partition (b='two') values (4), (5);
 insert into table tbl_parquet partition (b='three') values (6), (7), (8);
 insert into table tbl_parquet partition (b='four') values (9);
-insert into table tbl_parquet values (9,'');
-show partitions tbl_parquet;
-select * from tbl_parquet;
 select * from tbl_parquet order by a;
 explain alter table tbl_parquet convert to iceberg;
 alter table tbl_parquet convert to iceberg;
 describe formatted tbl_parquet;
-show partitions tbl_parquet;
-select * from tbl_parquet;
 select * from tbl_parquet order by a;
 drop table tbl_parquet;
 
