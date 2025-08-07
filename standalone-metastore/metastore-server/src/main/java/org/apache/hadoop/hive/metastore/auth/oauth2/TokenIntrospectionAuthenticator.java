@@ -89,7 +89,7 @@ public class TokenIntrospectionAuthenticator implements OAuth2Authenticator {
     this.audience = audience;
     this.credential = credential;
     this.principalMapper = principalMapper;
-    this.cache = maxCacheDuration.isPositive()
+    this.cache = maxCacheDuration.compareTo(Duration.ZERO) > 0
         ? Caffeine.newBuilder().maximumSize(cacheSize)
           .expireAfter(new TokenExpiry(maxCacheDuration, Clock.systemUTC())).build()
         : null;

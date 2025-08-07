@@ -20,6 +20,8 @@ package org.apache.hadoop.hive.serde2.variant;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.Text;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -80,14 +82,24 @@ public final class Variant {
     if (obj == null) {
       throw malformedVariant();
     }
-    return switch (obj) {
-      case byte[] bytes -> bytes;
-      case org.apache.hadoop.io.BytesWritable bytesWritable -> bytesWritable.getBytes();
-      case org.apache.hadoop.io.Text text -> text.getBytes();
-      default ->
-        throw new IllegalArgumentException("Unsupported type for Variant field: " + obj.getClass());
+    return toBytes(obj);
+  }
+
+
+  public static byte[] toBytes(Object obj) {
+    if (obj == null) {
+      throw new IllegalArgumentException("obj must not be null");
+    }
+
+    return switch (obj.getClass().getName()) {
+      case "[B" -> (byte[]) obj; // byte[]
+      case "org.apache.hadoop.io.BytesWritable" -> ((BytesWritable) obj).getBytes();
+      case "org.apache.hadoop.io.Text" -> ((Text) obj).getBytes();
+      default -> throw new IllegalArgumentException("Unsupported type for Variant field: " + obj.getClass());
     };
   }
+
+
 
   public byte[] getValue() {
     if (pos == 0) return value;

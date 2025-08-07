@@ -398,8 +398,8 @@ public class HiveIcebergStorageHandler extends DefaultStorageHandler implements 
     if (subExprNodes.removeIf(nodeDesc -> nodeDesc.getCols() != null &&
           nodeDesc.getCols().stream().anyMatch(skipList::contains))) {
       if (subExprNodes.size() == 1) {
-        pushedPredicate = (subExprNodes.getFirst() instanceof ExprNodeGenericFuncDesc) ?
-            subExprNodes.getFirst() : null;
+        pushedPredicate = (subExprNodes.get(0) instanceof ExprNodeGenericFuncDesc) ?
+            subExprNodes.get(0) : null;
       } else if (subExprNodes.isEmpty()) {
         pushedPredicate = null;
       }
@@ -798,7 +798,7 @@ public class HiveIcebergStorageHandler extends DefaultStorageHandler implements 
     Long previousSnapshotId = tbl.currentSnapshot().parentId();
     if (previousSnapshotId != null && canProvideColStats(tbl, previousSnapshotId)) {
 
-      boolean isTblLevel = statsNew.getFirst().getStatsDesc().isIsTblLevel();
+      boolean isTblLevel = statsNew.get(0).getStatsDesc().isIsTblLevel();
       Map<String, ColumnStatistics> oldStatsMap = Maps.newHashMap();
 
       List<?> statsOld = IcebergTableUtil.readColStats(tbl, previousSnapshotId, null);
@@ -814,7 +814,7 @@ public class HiveIcebergStorageHandler extends DefaultStorageHandler implements 
       for (ColumnStatistics statsObjNew : statsNew) {
         String partitionKey = statsObjNew.getStatsDesc().getPartName();
         ColumnStatistics statsObjOld = isTblLevel ?
-            (ColumnStatistics) statsOld.getFirst() : oldStatsMap.get(partitionKey);
+            (ColumnStatistics) statsOld.get(0) : oldStatsMap.get(partitionKey);
 
         if (statsObjOld != null && statsObjOld.getStatsObjSize() != 0 && !statsObjNew.getStatsObj().isEmpty()) {
           MetaStoreServerUtils.mergeColStats(statsObjNew, statsObjOld);

@@ -529,7 +529,7 @@ public class IcebergTableUtil {
 
     // Get source field type from first partition field (all share same source)
     Types.NestedField sourceField = table.schema().findField(
-        partitionFields.getFirst().sourceId());
+        partitionFields.get(0).sourceId());
     Object columnValue = Conversions.fromPartitionString(sourceField.type(), partitionValue);
 
     Expression predicate = Expressions.alwaysFalse();

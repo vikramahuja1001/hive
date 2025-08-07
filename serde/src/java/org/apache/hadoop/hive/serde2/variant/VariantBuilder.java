@@ -304,7 +304,7 @@ public class VariantBuilder {
   public void finishWritingObject(int start, List<FieldEntry> fields) {
     int size = fields.size();
     Collections.sort(fields);
-    int maxId = size == 0 ? 0 : fields.getFirst().id;
+    int maxId = size == 0 ? 0 : fields.get(0).id;
     if (allowDuplicateKeys) {
       int distinctPos = 0;
       // Maintain a list of distinct keys in-place.

@@ -188,7 +188,7 @@ public class TestHiveRESTCatalogClient {
     PartitionSpec capturedSpec = captor.getValue();
     assertThat(capturedSpec.isPartitioned()).isTrue();
     assertThat(capturedSpec.fields()).hasSize(1);
-    assertThat(capturedSpec.fields().getFirst().sourceId()).isEqualTo(schema.findField("city").fieldId());
+    assertThat(capturedSpec.fields().get(0).sourceId()).isEqualTo(schema.findField("city").fieldId());
   }
 
   @Test

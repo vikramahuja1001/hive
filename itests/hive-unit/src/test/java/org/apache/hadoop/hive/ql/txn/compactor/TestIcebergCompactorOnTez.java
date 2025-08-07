@@ -160,7 +160,7 @@ public class TestIcebergCompactorOnTez extends CompactorOnTezTest {
     driver.run(String.format("select count(*) from %s.files", QUALIFIED_TABLE_NAME));
     List<String> res = new ArrayList<>();
     driver.getFetchTask().fetch(res);
-    return Integer.parseInt(res.getFirst());
+    return Integer.parseInt(res.get(0));
   }
 
   private List<String> getAllRecords() throws Exception {

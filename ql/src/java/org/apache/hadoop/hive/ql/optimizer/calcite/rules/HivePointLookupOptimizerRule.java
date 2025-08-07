@@ -604,7 +604,7 @@ public abstract class HivePointLookupOptimizerRule extends RelOptRule {
       int eqExpressionCount = 0;
       for (RexNode operand : operands) {
         if (operand instanceof RexCall inCall && HiveIn.INSTANCE.equals(inCall.op)) {
-          RexNode ref = inCall.getOperands().getFirst();
+          RexNode ref = inCall.getOperands().get(0);
           if (HiveCalciteUtil.isDeterministic(ref)) {
             visitedRefs.add(ref);
             if (ref.getType().isNullable()) {
@@ -740,7 +740,7 @@ public abstract class HivePointLookupOptimizerRule extends RelOptRule {
       int inExpressionCount = 0;
       for (RexNode operand : operands) {
         if (operand instanceof RexCall inCall && HiveIn.INSTANCE.equals(inCall.op)) {
-          RexNode ref = inCall.getOperands().getFirst();
+          RexNode ref = inCall.getOperands().get(0);
           if (HiveCalciteUtil.isDeterministic(ref)) {
             for (int j = 1; j < inCall.getOperands().size(); j++) {
               inLHSExprToRHSExprs.put(ref, new SimilarRexNodeElement(inCall.getOperands().get(j)));

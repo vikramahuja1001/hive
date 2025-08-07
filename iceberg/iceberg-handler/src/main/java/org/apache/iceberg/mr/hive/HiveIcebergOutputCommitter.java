@@ -265,7 +265,7 @@ public class HiveIcebergOutputCommitter extends OutputCommitter {
         .map(TezUtil::enrichContextWithVertexId)
         .collect(Collectors.toList());
     Multimap<OutputTable, JobContext> outputs = collectOutputs(jobContextList);
-    JobConf jobConf = jobContextList.getFirst().getJobConf();
+    JobConf jobConf = jobContextList.get(0).getJobConf();
     long startTime = System.currentTimeMillis();
 
     String ids = jobContextList.stream()
@@ -273,8 +273,9 @@ public class HiveIcebergOutputCommitter extends OutputCommitter {
     LOG.info("Committing job(s) {} has started", ids);
 
     Collection<String> jobLocations = new ConcurrentLinkedQueue<>();
-    try (ExecutorService fileExecutor = fileExecutor(jobConf);
-         ExecutorService tableExecutor = tableExecutor(jobConf, outputs.keySet().size())) {
+    ExecutorService fileExecutor = fileExecutor(jobConf);
+    ExecutorService tableExecutor = tableExecutor(jobConf, outputs.keySet().size());
+    try {
       // Commits the changes for the output tables in parallel
       Tasks.foreach(outputs.keySet())
           .throwFailureWhenFinished()
@@ -291,6 +292,11 @@ public class HiveIcebergOutputCommitter extends OutputCommitter {
 
       // Cleanup any merge input files.
       cleanMergeTaskInputFiles(jobContextList, fileExecutor);
+    } finally {
+      fileExecutor.shutdown();
+      if (tableExecutor != null) {
+        tableExecutor.shutdown();
+      }
     }
 
     LOG.info("Commit took {} ms for job(s) {}", System.currentTimeMillis() - startTime, ids);
@@ -336,7 +342,7 @@ public class HiveIcebergOutputCommitter extends OutputCommitter {
         .map(TezUtil::enrichContextWithVertexId)
         .collect(Collectors.toList());
     Multimap<OutputTable, JobContext> outputs = collectOutputs(jobContextList);
-    JobConf jobConf = jobContextList.getFirst().getJobConf();
+    JobConf jobConf = jobContextList.get(0).getJobConf();
 
     String ids = jobContextList.stream()
         .map(jobContext -> jobContext.getJobID().toString()).collect(Collectors.joining(","));
@@ -808,14 +814,15 @@ public class HiveIcebergOutputCommitter extends OutputCommitter {
    */
   public static List<FileStatus> getOutputFiles(List<JobContext> jobContexts) throws IOException {
     Multimap<OutputTable, JobContext> outputs = collectOutputs(jobContexts);
-    JobConf jobConf = jobContexts.getFirst().getJobConf();
+    JobConf jobConf = jobContexts.get(0).getJobConf();
 
     Map<Path, List<FileStatus>> parentDirToDataFile = Maps.newConcurrentMap();
     Map<Path, List<FileStatus>> parentDirToDeleteFile = Maps.newConcurrentMap();
 
-    try (ExecutorService fileExecutor = fileExecutor(jobConf);
-         ExecutorService tableExecutor = tableExecutor(jobConf, outputs.keySet().size())) {
+    ExecutorService fileExecutor = fileExecutor(jobConf);
+    ExecutorService tableExecutor = tableExecutor(jobConf, outputs.keySet().size());
 
+    try {
       Tasks.foreach(outputs.keySet())
           .suppressFailureWhenFinished()
           .executeWith(tableExecutor)
@@ -843,11 +850,16 @@ public class HiveIcebergOutputCommitter extends OutputCommitter {
               }
             }
           }, IOException.class);
+    } finally {
+      fileExecutor.shutdown();
+      if (tableExecutor != null) {
+        tableExecutor.shutdown();
+      }
     }
     return Stream.of(parentDirToDataFile, parentDirToDeleteFile)
-      .flatMap(files ->
-          files.values().stream().flatMap(List::stream))
-      .collect(Collectors.toList());
+            .flatMap(files ->
+                    files.values().stream().flatMap(List::stream))
+            .collect(Collectors.toList());
   }
 
   /**
@@ -858,12 +870,13 @@ public class HiveIcebergOutputCommitter extends OutputCommitter {
    */
   public static List<ContentFile<?>> getOutputContentFiles(List<JobContext> jobContexts) throws IOException {
     Multimap<OutputTable, JobContext> outputs = collectOutputs(jobContexts);
-    JobConf jobConf = jobContexts.getFirst().getJobConf();
+    JobConf jobConf = jobContexts.get(0).getJobConf();
 
     Collection<ContentFile<?>> files = new ConcurrentLinkedQueue<>();
 
-    try (ExecutorService fileExecutor = fileExecutor(jobConf);
-        ExecutorService tableExecutor = tableExecutor(jobConf, outputs.keySet().size())) {
+    ExecutorService fileExecutor = fileExecutor(jobConf);
+    ExecutorService tableExecutor = tableExecutor(jobConf, outputs.keySet().size());
+    try {
 
       Tasks.foreach(outputs.keySet())
           .suppressFailureWhenFinished()
@@ -883,6 +896,11 @@ public class HiveIcebergOutputCommitter extends OutputCommitter {
               files.addAll(results.deleteFiles());
             }
           }, IOException.class);
+    } finally {
+      fileExecutor.shutdown();
+      if (tableExecutor != null) {
+        tableExecutor.shutdown();
+      }
     }
     return Lists.newArrayList(files);
   }
@@ -901,7 +919,7 @@ public class HiveIcebergOutputCommitter extends OutputCommitter {
         .retry(3)
         .executeWith(fileExecutor)
         .run(path -> {
-          FileSystem fs = path.getFileSystem(jobContexts.getFirst().getJobConf());
+          FileSystem fs = path.getFileSystem(jobContexts.get(0).getJobConf());
           if (fs.exists(path)) {
             fs.delete(path, true);
           }

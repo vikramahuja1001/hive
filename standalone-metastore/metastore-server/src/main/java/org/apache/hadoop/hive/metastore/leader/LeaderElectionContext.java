@@ -103,7 +103,7 @@ public class LeaderElectionContext {
         continue;
       }
       if (auditLeaderListener != null) {
-        listenerList.addFirst(auditLeaderListener);
+        listenerList.add(0, auditLeaderListener);
       }
       LeaderElection leaderElection = LeaderElectionFactory.create(conf);
       leaderElection.setName(ttype.name);

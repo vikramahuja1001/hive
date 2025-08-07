@@ -719,7 +719,7 @@ public class OpProcFactory {
 
         if (funcDef instanceof WindowTableFunctionDef) {
           // function name
-          WindowFunctionDef windowFunctionDef = ((WindowTableFunctionDef) funcDef).getWindowFunctions().getFirst();
+          WindowFunctionDef windowFunctionDef = ((WindowTableFunctionDef) funcDef).getWindowFunctions().get(0);
           sb.append(windowFunctionDef.getName()).append("(");
 
           addArgs(sb, columns, lCtx, inpOp, op.getSchema(), windowFunctionDef.getArgs());

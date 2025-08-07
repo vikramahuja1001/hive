@@ -61,9 +61,11 @@ public class Initiator extends MetaStoreCompactorThread {
     LOG.info("Starting Initiator thread");
     // Make sure nothing escapes this run method and kills the metastore at large,
     // so wrap it in a big catch Throwable statement.
-    try (ExecutorService compactionExecutor = CompactorUtil.createExecutorWithThreadFactory(
-        conf.getIntVar(HiveConf.ConfVars.HIVE_COMPACTOR_REQUEST_QUEUE),
-        COMPACTOR_INTIATOR_THREAD_NAME_FORMAT)) {
+    ExecutorService compactionExecutor = CompactorUtil.createExecutorWithThreadFactory(
+            conf.getIntVar(HiveConf.ConfVars.HIVE_COMPACTOR_REQUEST_QUEUE),
+            COMPACTOR_INTIATOR_THREAD_NAME_FORMAT);
+    try {
+      recoverFailedCompactions();
       TxnStore.MutexAPI mutex = shouldUseMutex ? txnHandler.getMutexAPI() : new NoMutex();
 
       // Make sure we run through the loop once before checking to stop as this makes testing

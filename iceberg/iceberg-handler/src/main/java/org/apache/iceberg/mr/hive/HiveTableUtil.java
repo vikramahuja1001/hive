@@ -138,9 +138,12 @@ public class HiveTableUtil {
           tasks.add(task);
         }
         int numThreads = HiveConf.getIntVar(conf, HiveConf.ConfVars.HIVE_SERVER2_ICEBERG_METADATA_GENERATOR_THREADS);
-        try (ExecutorService executor = Executors.newFixedThreadPool(numThreads,
-              new ThreadFactoryBuilder().setNameFormat("iceberg-metadata-generator-%d").setDaemon(true).build())) {
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads,
+                new ThreadFactoryBuilder().setNameFormat("iceberg-metadata-generator-%d").setDaemon(true).build());
+        try {
           executor.invokeAll(tasks);
+        } finally {
+          executor.shutdown();
         }
       }
       append.commit();

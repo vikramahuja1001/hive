@@ -352,7 +352,7 @@ public class TestStreaming {
     runQuery(driver, "insert into default.streamingnobuckets values('foo','bar')");
     List<String> rs = queryTable(driver, "select * from default.streamingnobuckets");
     Assert.assertEquals(1, rs.size());
-    Assert.assertEquals("foo\tbar", rs.getFirst());
+    Assert.assertEquals("foo\tbar", rs.get(0));
     StrictDelimitedInputWriter wr = StrictDelimitedInputWriter.newBuilder()
       .withFieldDelimiter(',')
       .build();
@@ -371,8 +371,8 @@ public class TestStreaming {
     TxnStore txnHandler = TxnUtils.getTxnStore(conf);
     ShowLocksResponse resp = txnHandler.showLocks(new ShowLocksRequest());
     Assert.assertEquals(1, resp.getLocksSize());
-    Assert.assertEquals("streamingnobuckets", resp.getLocks().getFirst().getTablename());
-    Assert.assertEquals("default", resp.getLocks().getFirst().getDbname());
+    Assert.assertEquals("streamingnobuckets", resp.getLocks().get(0).getTablename());
+    Assert.assertEquals("default", resp.getLocks().get(0).getDbname());
     connection.commitTransaction();
     connection.beginTransaction();
     connection.write("a5,b6".getBytes());
@@ -443,7 +443,7 @@ public class TestStreaming {
     runQuery(driver, "ALTER TABLE default.keyvalue SET TBLPROPERTIES('_metamykey' = 'myvalue')");
     List<String> rs = queryTable(driver, "select * from default.keyvalue");
     Assert.assertEquals(1, rs.size());
-    Assert.assertEquals("foo\tbar", rs.getFirst());
+    Assert.assertEquals("foo\tbar", rs.get(0));
     StrictDelimitedInputWriter wr = StrictDelimitedInputWriter.newBuilder()
         .withFieldDelimiter(',')
         .build();
@@ -480,7 +480,7 @@ public class TestStreaming {
 
     List<String> rs = queryTable(driver, "select * from default.writeidconnection");
     Assert.assertEquals(1, rs.size());
-    Assert.assertEquals("a0\tbar", rs.getFirst());
+    Assert.assertEquals("a0\tbar", rs.get(0));
 
     StrictDelimitedInputWriter writerT = StrictDelimitedInputWriter.newBuilder()
         .withFieldDelimiter(',')
@@ -605,7 +605,7 @@ public class TestStreaming {
     List<String> rs = queryTable(driver, "select ROW__ID, bo, ti, si, i, bi, f, d, de, ts, da, s, c, vc, m, l, st," +
       " INPUT__FILE__NAME from default.alltypes order by ROW__ID");
     Assert.assertEquals(2, rs.size());
-    String gotRow1 = rs.getFirst();
+    String gotRow1 = rs.get(0);
     String expectedPrefixRow1 = "{\"writeid\":1,\"bucketid\":536870912," +
       "\"rowid\":0}\ttrue\t10\t100\t1000\t10000\t4.0\t20.0\t4.222\t1969-12-31 15:59:58.174\t1970-01-01\tstring" +
       "\thello\thello\t{\"k1\":\"v1\"}\t[100,200]\t{\"c1\":10,\"c2\":\"foo\"}";
@@ -659,7 +659,7 @@ public class TestStreaming {
     List<String> rs = queryTable(driver, "select ROW__ID, bo, ti, si, i, bi, f, d, de, ts, da, s, c, vc, m, l, st," +
       " INPUT__FILE__NAME from default.alltypes order by ROW__ID");
     Assert.assertEquals(2, rs.size());
-    String gotRow1 = rs.getFirst();
+    String gotRow1 = rs.get(0);
     String expectedPrefixRow1 = "{\"writeid\":1,\"bucketid\":536870912," +
       "\"rowid\":0}\ttrue\t10\t100\t1000\t10000\t4.0\t20.0\t4.222\t1969-12-31 15:59:58.174\t1970-01-01\tstring" +
       "\thello\thello\t{\"k1\":\"v1\"}\t[100,200]\t{\"c1\":10,\"c2\":\"foo\"}";
@@ -683,7 +683,7 @@ public class TestStreaming {
     runQuery(driver, "insert into default.streamingnobuckets values('foo','bar')");
     List<String> rs = queryTable(driver, "select * from default.streamingnobuckets");
     Assert.assertEquals(1, rs.size());
-    Assert.assertEquals("foo\tbar", rs.getFirst());
+    Assert.assertEquals("foo\tbar", rs.get(0));
     StrictDelimitedInputWriter wr = StrictDelimitedInputWriter.newBuilder()
       .withFieldDelimiter(',')
       .build();
@@ -974,7 +974,7 @@ public class TestStreaming {
     conf.set(ValidTxnList.VALID_TXNS_KEY, validTxnList.writeToString());
     List<TableValidWriteIds> v = msClient.getValidWriteIds(Collections
         .singletonList(TableName.getDbTable(dbName, tblName)), validTxnList.writeToString());
-    return TxnCommonUtils.createValidReaderWriteIdList(v.getFirst());
+    return TxnCommonUtils.createValidReaderWriteIdList(v.get(0));
   }
 
   private void checkNothingWritten(Path partitionPath) throws Exception {
@@ -1349,12 +1349,12 @@ public class TestStreaming {
       request.setTablename(tblName2);
       ShowLocksResponse response = msClient.showLocks(request);
       Assert.assertEquals("Wrong number of locks: " + response, 1, response.getLocks().size());
-      ShowLocksResponseElement lock = response.getLocks().getFirst();
+      ShowLocksResponseElement lock = response.getLocks().get(0);
       long acquiredAt = lock.getAcquiredat();
       long heartbeatAt = lock.getLastheartbeat();
       response = msClient.showLocks(request);
       Assert.assertEquals("Wrong number of locks2: " + response, 1, response.getLocks().size());
-      lock = response.getLocks().getFirst();
+      lock = response.getLocks().get(0);
       Assert.assertEquals("Acquired timestamp didn'table match", acquiredAt, lock.getAcquiredat());
       Assert.assertEquals("Expected new heartbeat (" + lock.getLastheartbeat() +
           ") == old heartbeat(" + heartbeatAt + ")", lock.getLastheartbeat(), heartbeatAt);
@@ -1804,9 +1804,9 @@ public class TestStreaming {
     connection.write("2,Welcome to streaming".getBytes());
     ShowLocksResponse resp = msClient.showLocks(new ShowLocksRequest());
     Assert.assertEquals("LockCount", 1, resp.getLocksSize());
-    Assert.assertEquals("LockType", LockType.SHARED_WRITE, resp.getLocks().getFirst().getType());
-    Assert.assertEquals("LockState", LockState.ACQUIRED, resp.getLocks().getFirst().getState());
-    Assert.assertEquals("AgentInfo", agentInfo, resp.getLocks().getFirst().getAgentInfo());
+    Assert.assertEquals("LockType", LockType.SHARED_WRITE, resp.getLocks().get(0).getType());
+    Assert.assertEquals("LockState", LockState.ACQUIRED, resp.getLocks().get(0).getState());
+    Assert.assertEquals("AgentInfo", agentInfo, resp.getLocks().get(0).getAgentInfo());
     connection.abortTransaction();
 
     checkNothingWritten(partLoc);
@@ -2728,7 +2728,7 @@ public class TestStreaming {
     Path cPath = new Path(sideFilePath.getParent(), sideFilePath.getName() + ".corrupt");
     FileSystem fs = sideFilePath.getFileSystem(conf);
     List<Long> offsets = offsetMap.get(key);
-    long lastOffset = offsets.getLast();
+    long lastOffset = offsets.get(offsets.size() - 1);
     FSDataOutputStream fdos = fs.create(cPath, true);
     // corrupt last entry
     if (numEntries < 0) {
@@ -3037,7 +3037,7 @@ public class TestStreaming {
 
   private static Path getPartitionPath(IDriver driver, String tableName, String partSpec) throws Exception {
     List<String> res = queryTable(driver, "describe extended " + tableName + " PARTITION (" + partSpec + ")");
-    String partInfo = res.getLast();
+    String partInfo = res.get(res.size() - 1);
     int start = partInfo.indexOf("location:") + "location:".length();
     int end = partInfo.indexOf(",", start);
     return new Path(partInfo.substring(start, end));

@@ -388,7 +388,7 @@ public class OrcInputFormat implements InputFormat<NullWritable, OrcStruct>,
    * @return <code>false</code> if an ACID file, <code>true</code> if a simple orc file
    */
   public static boolean isOriginal(Footer footer) {
-    return !containsAllAcidRows(footer.getTypesList().getFirst().getFieldNamesList());
+    return !containsAllAcidRows(footer.getTypesList().get(0).getFieldNamesList());
   }
 
   private static boolean containsAllAcidRows(Collection<String> fieldNames) {

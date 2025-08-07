@@ -338,8 +338,8 @@ class DirectSqlAggrStats {
             try {
               List<Object[]> list =
                   Batchable.runBatched(batchSize, Collections.singletonList(colName), columnWisePartitionBatches);
-              Object[] min = list.getFirst();
-              Object[] max = list.getLast();
+              Object[] min = list.get(0);
+              Object[] max = list.get(list.size() - 1);
               if (batchSize > 0) {
                 for (int i = Math.min(batchSize - 1, list.size() - 1); i < list.size(); i += batchSize) {
                   Object[] posMax = list.get(i);

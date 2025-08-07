@@ -68,7 +68,7 @@ public class JWTValidator {
   }
 
   private JWKSource<SecurityContext> getKeySource(List<URL> jwkURLs) {
-    final var head = jwkURLs.getFirst();
+    final var head = jwkURLs.get(0);
     final var builder = JWKSourceBuilder.create(head).retrying(true);
     final var tail = jwkURLs.subList(1, jwkURLs.size());
     return tail.isEmpty() ? builder.build() : builder.failover(getKeySource(tail)).build();

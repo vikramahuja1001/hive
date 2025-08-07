@@ -128,7 +128,7 @@ public class CommitTxnFunction implements TransactionalFunction<TxnType> {
         throw new RollbackException(null);
       }
       assert targetTxnIds.size() == 1;
-      txnid = targetTxnIds.getFirst();
+      txnid = targetTxnIds.get(0);
     }
 
     /**

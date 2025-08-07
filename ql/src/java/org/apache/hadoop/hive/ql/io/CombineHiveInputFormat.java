@@ -465,7 +465,8 @@ public class CombineHiveInputFormat<K extends WritableComparable, V extends Writ
     int numPathPerThread = (int) Math.ceil((double) paths.length / numThreads);
 
     List<Future<Set<Integer>>> futureList = new ArrayList<>(numThreads);
-    try (ExecutorService executor = Executors.newFixedThreadPool(numThreads)) {
+    ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+    try {
       boolean isMerge = mrwork != null && mrwork.isMergeFromResolver();
       for (int i = 0; i < numThreads; i++) {
         int start = i * numPathPerThread;
@@ -474,10 +475,16 @@ public class CombineHiveInputFormat<K extends WritableComparable, V extends Writ
             paths, start, length, job, isMerge)));
       }
       Set<Integer> nonCombinablePathIndices = new HashSet<>();
+
       for (Future<Set<Integer>> future : futureList) {
         nonCombinablePathIndices.addAll(future.get());
       }
       return nonCombinablePathIndices;
+    } catch (Exception e) {
+      LOG.error("Error checking non-combinable paths", e);
+      throw new ExecutionException("Error checking non-combinable paths", e);
+    } finally {
+      executor.shutdown();
     }
   }
 
@@ -595,12 +602,12 @@ public class CombineHiveInputFormat<K extends WritableComparable, V extends Writ
         // 1. it serves more than one alias
         // 2. the alias it serves is not sampled
         // 3. it serves different alias than another path for the same split
-        if (l.size() != 1 || !nameToSamples.containsKey(l.getFirst()) ||
-            (alias != null && !alias.equals(l.getFirst()))) {
+        if (l.size() != 1 || !nameToSamples.containsKey(l.get(0)) ||
+            (alias != null && !alias.equals(l.get(0)))) {
           alias = null;
           break;
         }
-        alias = l.getFirst();
+        alias = l.get(0);
       }
 
       if (alias != null) {
