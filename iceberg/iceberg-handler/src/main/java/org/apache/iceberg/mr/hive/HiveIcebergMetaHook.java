@@ -962,7 +962,7 @@ public class HiveIcebergMetaHook implements HiveMetaHook {
     }
 
     transaction = icebergTable.newTransaction();
-    transaction.updateSchema().deleteColumn(removedCols.getFirst().getName()).commit();
+    transaction.updateSchema().deleteColumn(removedCols.get(0).getName()).commit();
     LOG.info("handleDropColumn: Dropping the following column for Iceberg table {}, col: {}", hmsTable.getTableName(),
         removedCols);
   }
@@ -1012,8 +1012,8 @@ public class HiveIcebergMetaHook implements HiveMetaHook {
     Map<String, String> renameMapping = ImmutableMap.of();
     if (!schemaDifference.getMissingFromSecond().isEmpty()) {
       renameMapping = ImmutableMap.of(
-          schemaDifference.getMissingFromSecond().getFirst().getName(),
-          schemaDifference.getMissingFromFirst().getFirst().getName());
+          schemaDifference.getMissingFromSecond().get(0).getName(),
+          schemaDifference.getMissingFromFirst().get(0).getName());
     }
     Pair<String, Optional<String>> outOfOrder = HiveSchemaUtil.getReorderedColumn(hmsCols, icebergCols, renameMapping);
 
@@ -1030,8 +1030,8 @@ public class HiveIcebergMetaHook implements HiveMetaHook {
 
     // case 1: column name has been renamed
     if (!schemaDifference.getMissingFromSecond().isEmpty()) {
-      FieldSchema updatedField = schemaDifference.getMissingFromSecond().getFirst();
-      FieldSchema oldField = schemaDifference.getMissingFromFirst().getFirst();
+      FieldSchema updatedField = schemaDifference.getMissingFromSecond().get(0);
+      FieldSchema oldField = schemaDifference.getMissingFromFirst().get(0);
       updateSchema.renameColumn(oldField.getName(), updatedField.getName());
 
       // check if type/comment changed too
@@ -1043,13 +1043,13 @@ public class HiveIcebergMetaHook implements HiveMetaHook {
 
     // case 2: only column type and/or comment changed
     } else if (!schemaDifference.getTypeChanged().isEmpty()) {
-      FieldSchema updatedField = schemaDifference.getTypeChanged().getFirst();
+      FieldSchema updatedField = schemaDifference.getTypeChanged().get(0);
       updateSchema.updateColumn(updatedField.getName(), getPrimitiveTypeOrThrow(updatedField),
           updatedField.getComment());
 
     // case 3: only comment changed
     } else if (!schemaDifference.getCommentChanged().isEmpty()) {
-      FieldSchema updatedField = schemaDifference.getCommentChanged().getFirst();
+      FieldSchema updatedField = schemaDifference.getCommentChanged().get(0);
       updateSchema.updateColumnDoc(updatedField.getName(), updatedField.getComment());
     }
 
@@ -1069,8 +1069,8 @@ public class HiveIcebergMetaHook implements HiveMetaHook {
   private void handlePartitionRename(HiveSchemaUtil.SchemaDifference schemaDifference) {
     // in case a partition column has been renamed, spec needs to be adjusted too
     if (!schemaDifference.getMissingFromSecond().isEmpty()) {
-      FieldSchema oldField = schemaDifference.getMissingFromFirst().getFirst();
-      FieldSchema updatedField = schemaDifference.getMissingFromSecond().getFirst();
+      FieldSchema oldField = schemaDifference.getMissingFromFirst().get(0);
+      FieldSchema updatedField = schemaDifference.getMissingFromSecond().get(0);
       if (icebergTable.spec().fields().stream().anyMatch(pf -> pf.name().equals(oldField.getName()))) {
         UpdatePartitionSpec updatePartitionSpec = transaction.updateSpec();
         updatePartitionSpec.renameField(oldField.getName(), updatedField.getName());

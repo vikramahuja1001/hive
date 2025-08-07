@@ -19,15 +19,12 @@
 
 package org.apache.iceberg.hive;
 
-import com.google.errorprone.annotations.FormatMethod;
 
 class LockException extends RuntimeException {
-  @FormatMethod
   LockException(String message, Object... args) {
     super(String.format(message, args));
   }
 
-  @FormatMethod
   LockException(Throwable cause, String message, Object... args) {
     super(String.format(message, args), cause);
   }

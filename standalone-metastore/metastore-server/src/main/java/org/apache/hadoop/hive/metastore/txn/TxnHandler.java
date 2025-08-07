@@ -512,7 +512,7 @@ public abstract class TxnHandler implements TxnStore, TxnStore.MutexAPI {
       return -1;
     }
     assert (targetTxnIds.size() == 1);
-    return targetTxnIds.getFirst();
+    return targetTxnIds.get(0);
   }
 
   @Override
@@ -848,7 +848,7 @@ public abstract class TxnHandler implements TxnStore, TxnStore.MutexAPI {
     if (CollectionUtils.isEmpty(lockInfos)) {
       throw new NoSuchLockException("No such lock " + JavaUtils.lockIdToString(extLockId));
     }
-    LockInfo lockInfo = lockInfos.getFirst();
+    LockInfo lockInfo = lockInfos.get(0);
     if (lockInfo.getTxnId() > 0) {
       new HeartbeatTxnFunction(lockInfo.getTxnId()).execute(jdbcResource);
     } else {

@@ -42,7 +42,6 @@ import org.apache.hadoop.hive.metastore.api.Database;
 import org.apache.hadoop.hive.metastore.conf.MetastoreConf;
 import org.apache.hadoop.hive.metastore.conf.MetastoreConf.ConfVars;
 import org.apache.hadoop.hive.metastore.security.HadoopThriftAuthBridge;
-import org.apache.hive.common.util.ReflectionUtil;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -99,7 +98,7 @@ public class TestRemoteHiveMetastoreWithHttpJwt {
   }
 
   private static void removeStaticFinalAndSetValue(Field field, Object value) throws Exception {
-    ReflectionUtil.setStaticFinalFieldsModifiable(field);
+    // ReflectionUtil.setStaticFinalFieldsModifiable(field);
     field.set(null, value);
   }
   private static int port;

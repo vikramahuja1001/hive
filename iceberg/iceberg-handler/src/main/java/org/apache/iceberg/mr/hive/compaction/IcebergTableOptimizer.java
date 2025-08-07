@@ -198,7 +198,8 @@ public class IcebergTableOptimizer extends TableOptimizer {
       return Collections.emptyList();
     }
 
-    try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    try {
       // Submit a task for each snapshot and collect the Futures
       List<Future<Set<String>>> futures = relevantSnapshots.stream()
           .map(snapshot -> executor.submit(() -> {
